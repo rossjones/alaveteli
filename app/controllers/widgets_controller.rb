@@ -20,6 +20,8 @@ class WidgetsController < ApplicationController
 
         if @user
             @existing_track = TrackThing.find_existing(@user, @track_thing)
+        else
+            @tracking_cookie = cookies[:widget_vote]
         end
         unless @user || cookies[:widget_vote]
           cookies.permanent[:widget_vote] = SecureRandom.hex(10)

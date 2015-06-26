@@ -37,16 +37,29 @@ describe WidgetsController do
             response.headers["X-Frame-Options"].should be_nil
         end
 
-        context 'for a non-logged-in user' do
+        context 'for a non-logged-in user with a tracking cookie' do
 
-            context 'if no widget-vote cookie is set' do
+            it 'assigns the cookie to tracking_cookie' do
+                cookie_value = SecureRandom.hex(10)
+                request.cookies['widget_vote'] = cookie_value
+                get :show, :request_id => @info_request.id
+                expect(assigns[:tracking_cookie]).to eq(cookie_value)
+            end
 
-                it 'should set a widget-vote cookie' do
-                    cookies[:widget_vote].should be_nil
-                    get :show, :request_id => @info_request.id
-                    cookies[:widget_vote].should_not be_nil
-                end
+        end
 
+        context 'for a non-logged-in user without a tracking cookie' do
+
+            it 'tracking_cookie will be nil' do
+                request.cookies['widget_vote'] = nil
+                get :show, :request_id => @info_request.id
+                expect(assigns[:tracking_cookie]).to be_nil
+            end
+
+            it 'should set a widget-vote cookie' do
+                cookies[:widget_vote].should be_nil
+                get :show, :request_id => @info_request.id
+                cookies[:widget_vote].should_not be_nil
             end
 
         end
