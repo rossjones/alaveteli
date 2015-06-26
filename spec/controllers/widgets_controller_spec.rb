@@ -64,6 +64,37 @@ describe WidgetsController do
 
         end
 
+        context 'for a logged in user with tracks' do
+
+            it 'finds the existing track thing' do
+                user = FactoryGirl.create(:user)
+                track = TrackThing.create_track_for_request(@info_request)
+                track.track_medium = 'email_daily'
+                track.tracking_user = user
+                track.save!
+                session[:user_id] = user.id
+
+                get :show, :request_id => @info_request.id
+
+                expect(assigns[:existing_track]).to eq(track)
+            end
+
+        end
+
+        context 'for a logged in user without tracks' do
+
+            it 'does not find existing track things' do
+                TrackThing.delete_all
+                user = FactoryGirl.create(:user)
+                session[:user_id] = user.id
+
+                get :show, :request_id => @info_request.id
+
+                expect(assigns[:existing_track]).to be_nil
+            end
+
+        end
+
         context 'when widgets are not enabled' do
 
             it 'raises ActiveRecord::RecordNotFound' do
