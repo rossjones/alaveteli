@@ -62,10 +62,9 @@ describe WidgetsController do
         context 'for a non-logged-in user with a tracking cookie' do
 
             it 'assigns the cookie to tracking_cookie' do
-                cookie_value = SecureRandom.hex(10)
-                request.cookies['widget_vote'] = cookie_value
+                request.cookies['widget_vote'] = mock_cookie
                 get :show, :request_id => @info_request.id
-                expect(assigns[:tracking_cookie]).to eq(cookie_value)
+                expect(assigns[:tracking_cookie]).to eq(mock_cookie)
             end
 
         end
@@ -195,16 +194,16 @@ describe WidgetsController do
         context 'for a non-logged-in user without a tracking cookie' do
 
             it 'sets a tracking cookie' do
-                SecureRandom.stub!(:hex).and_return('0300fd3e1177127cebff')
+                SecureRandom.stub!(:hex).and_return(mock_cookie)
                 put :update, :request_id => @info_request.id
-                expect(cookies[:widget_vote]).to eq('0300fd3e1177127cebff')
+                expect(cookies[:widget_vote]).to eq(mock_cookie)
             end
 
             it 'creates a widget vote' do
-                SecureRandom.stub!(:hex).and_return('0300fd3e1177127cebff')
+                SecureRandom.stub!(:hex).and_return(mock_cookie)
                 votes = @info_request.
                             widget_votes.
-                                where(:cookie => '0300fd3e1177127cebff')
+                                where(:cookie => mock_cookie)
 
                 put :update, :request_id => @info_request.id
 
@@ -217,16 +216,16 @@ describe WidgetsController do
         context 'for a non-logged-in user with a tracking cookie' do
 
             it 'retains the existing tracking cookie' do
-                request.cookies['widget_vote'] = '0300fd3e1177127cebff'
+                request.cookies['widget_vote'] = mock_cookie
                 put :update, :request_id => @info_request.id
-                expect(cookies[:widget_vote]).to eq('0300fd3e1177127cebff')
+                expect(cookies[:widget_vote]).to eq(mock_cookie)
             end
 
             it 'creates a widget vote' do
-                request.cookies['widget_vote'] = '0300fd3e1177127cebff'
+                request.cookies['widget_vote'] = mock_cookie
                 votes = @info_request.
                             widget_votes.
-                                where(:cookie => '0300fd3e1177127cebff')
+                                where(:cookie => mock_cookie)
 
                 put :update, :request_id => @info_request.id
 
@@ -260,3 +259,6 @@ describe WidgetsController do
 
 end
 
+def mock_cookie
+    '0300fd3e1177127cebff'
+end
