@@ -17,6 +17,15 @@ class TrackController < ApplicationController
         return atom_feed_internal if params[:feed] == 'feed'
 
         if self.track_set
+            if AlaveteliConfiguration.enable_widgets && cookies[:widget_vote]
+                @info_request.
+                    widget_votes.
+                        where(:cookie => cookies[:widget_vote]).
+                            destroy_all
+
+                cookies[:widget_vote] = nil
+            end
+
             redirect_to request_url(@info_request)
         end
     end
