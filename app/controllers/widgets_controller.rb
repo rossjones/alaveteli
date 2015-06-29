@@ -23,9 +23,7 @@ class WidgetsController < ApplicationController
         else
             @tracking_cookie = cookies[:widget_vote]
         end
-        unless @user || cookies[:widget_vote]
-          cookies.permanent[:widget_vote] = SecureRandom.hex(10)
-        end
+
         render :action => 'show', :layout => false
     end
 
@@ -35,10 +33,17 @@ class WidgetsController < ApplicationController
 
     # Track interest in a request from a non-logged in user
     def update
-        if !@user && cookies[:widget_vote]
-            @info_request.widget_votes.
-                where(:cookie => cookies[:widget_vote]).
-                    first_or_create
+        unless @user      
+          cookie = cookies[:widget_vote]
+        
+          if cookie.nil?
+              cookies.permanent[:widget_vote] = SecureRandom.hex(10)
+              cookie = cookies[:widget_vote]
+          end 
+        
+          @info_request.widget_votes.
+              where(:cookie => cookie).
+                  first_or_create
         end
 
         track_thing = TrackThing.create_track_for_request(@info_request)
