@@ -255,6 +255,19 @@ class RequestMailer < ApplicationMailer
             return
         end
 
+        spam_threshold = AlaveteliConfiguration.incoming_email_spam_threshold
+        spam_header = AlaveteliConfiguration.incoming_email_spam_header
+        spam_score = email.header[spam_header].try(:value).to_f
+
+        if spam_header && spam_threshold && spam_score
+            if spam_score > spam_threshold
+                reason = _("Incoming message has a spam score over the configured threshold")
+                request = InfoRequest.holding_pen_request
+                request.receive(email, raw_email, false, reason)
+                return
+            end
+        end
+
         # Send the message to each request, to be archived with it
         for reply_info_request in reply_info_requests
             # If environment variable STOP_DUPLICATES is set, don't send message with same id again
