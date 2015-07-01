@@ -198,6 +198,39 @@ describe PublicBodyController, "when listing bodies" do
         assigns[:description].should == ""
     end
 
+    it 'list bodies in alphabetical order according to the locale' do
+        AlaveteliLocalization.set_locales('nn_NO', 'en')
+        ActiveRecord::Base.connection.execute(%Q(CREATE COLLATION "nn_NO" (LOCALE = 'nn_NO.utf8');))
+        InfoRequestEvent.delete_all
+        Comment.delete_all
+        InfoRequest.all.each(&:fully_destroy)
+        PublicBody.destroy_all
+        first = FactoryGirl.create(:public_body, :name => 'Ytre Helgeland District Psychiatric Centre')
+        last  = FactoryGirl.create(:public_body, :name => 'Åfjord Municipality')
+        middle = FactoryGirl.create(:public_body, :name => 'Åbjord Municipality')
+
+        get :list
+
+        expect(assigns[:public_bodies]).to eq([first, middle, last])
+    end
+
+    it 'list bodies in alphabetical order according to the locale with the fallback set' do
+        AlaveteliConfiguration.stub!(:public_body_list_fallback_to_default_locale).and_return(true)
+        AlaveteliLocalization.set_locales('nn_NO', 'en')
+        ActiveRecord::Base.connection.execute(%Q(CREATE COLLATION "nn_NO" (LOCALE = 'nn_NO.utf8');))
+        InfoRequestEvent.delete_all
+        Comment.delete_all
+        InfoRequest.all.each(&:fully_destroy)
+        PublicBody.destroy_all
+        first = FactoryGirl.create(:public_body, :name => 'Ytre Helgeland District Psychiatric Centre')
+        last  = FactoryGirl.create(:public_body, :name => 'Åfjord Municipality')
+        middle = FactoryGirl.create(:public_body, :name => 'Åbjord Municipality')
+
+        get :list
+
+        expect(assigns[:public_bodies]).to eq([first, middle, last])
+    end
+
     it "should support simple searching of bodies by title" do
         get :list, :public_body_query => 'quango'
         assigns[:public_bodies].should == [ public_bodies(:geraldine_public_body) ]

@@ -175,8 +175,14 @@ class PublicBodyController < ApplicationController
             if AlaveteliConfiguration::public_body_list_fallback_to_default_locale
                 # Unfortunately, when we might fall back to the
                 # default locale, this is a rather complex query:
+                if DatabaseCollation.supports?(underscore_locale)
+                    select_sql = %Q(SELECT public_bodies.*, COALESCE(current_locale.name, default_locale.name) COLLATE "#{ underscore_locale }" AS display_name)
+                else
+                    select_sql = %Q(SELECT public_bodies.*, COALESCE(current_locale.name, default_locale.name) AS display_name)
+                end
+
                 query =  %Q{
-                    SELECT public_bodies.*, COALESCE(current_locale.name, default_locale.name) AS display_name
+                    #{ select_sql }
                     FROM public_bodies
                     LEFT OUTER JOIN public_body_translations as current_locale
                         ON (public_bodies.id = current_locale.public_body_id
@@ -202,10 +208,18 @@ class PublicBodyController < ApplicationController
                 where_sql = [where_condition, like_query, like_query, like_query]
                 where_sql.push @tag if first_letter
                 where_sql += [underscore_locale] + where_parameters
-                @public_bodies = PublicBody.where(where_sql).
-                                   joins(:translations).
-                                     order("public_body_translations.name").
-                                       paginate(:page => params[:page], :per_page => 100)
+
+                if DatabaseCollation.supports?(underscore_locale)
+                    @public_bodies = PublicBody.where(where_sql).
+                                        joins(:translations).
+                                            order(%Q(public_body_translations.name COLLATE "#{ underscore_locale }")).
+                                                paginate(:page => params[:page], :per_page => 100)
+                else
+                    @public_bodies = PublicBody.where(where_sql).
+                                        joins(:translations).
+                                            order('public_body_translations.name').
+                                                paginate(:page => params[:page], :per_page => 100)                        
+                end
             end
 
             respond_to do |format|
