@@ -35,7 +35,7 @@ class DatabaseCollation
 
     def supported_collations
         connection.
-            execute(%(SELECT * FROM pg_collation;)).
+            execute(%q(SELECT collname FROM pg_collation;)).
                 map { |row| row['collname'] }
     end
 
