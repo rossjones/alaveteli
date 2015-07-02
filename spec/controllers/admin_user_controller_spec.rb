@@ -48,6 +48,27 @@ end
 
 describe AdminUserController do
 
+    describe :update do
+
+        context 'banning a user' do
+
+            it 'does not change their url_name' do
+                user = FactoryGirl.create(:user, :name => 'nasty user 123', :ban_text => 'You are banned bro')
+                put :update, :id => user.id,
+                             :admin_user => { :can_make_batch_requests => '1',
+                                              :name => user.name,
+                                              :email => user.email,
+                                              :admin_level => user.admin_level,
+                                              :ban_text => user.ban_text,
+                                              :about_me => user.about_me,
+                                              :no_limit => user.no_limit }
+                expect(User.find(user.id).url_name).to eq('nasty_user_123')
+            end
+
+        end
+
+    end
+
     describe :modify_comment_visibility do
 
         before(:each) do
