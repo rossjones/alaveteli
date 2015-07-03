@@ -29,7 +29,7 @@
       <% elsif @existing_track %>
         <%= link_to update_url(:track_id => @existing_track.id, :track_medium => "delete", :r => request.fullpath), :target => '_top' do %>
           <div class="alaveteli-widget__button alaveteli-widget__button--down">
-            <%= _('You are tracking this request') %>
+            <%= _('Unsubscribe') %>
           </div>
         <% end %>
       <% elsif @existing_vote %>
