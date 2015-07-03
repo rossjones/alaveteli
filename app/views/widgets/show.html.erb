@@ -35,7 +35,7 @@
       <% elsif @existing_vote %>
         <%= link_to track_request_url(:url_title => @info_request.url_title, :feed => 'track'), :target => '_top' do %>
           <div class="alaveteli-widget__button alaveteli-widget__button--down">
-            <%= _('You are tracking this request') %>
+            <%= _('Sign in to track this request') %>
           </div>
         <% end %>
       <% else %>
