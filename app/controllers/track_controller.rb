@@ -22,8 +22,6 @@ class TrackController < ApplicationController
                     widget_votes.
                         where(:cookie => cookies[:widget_vote]).
                             destroy_all
-
-                cookies[:widget_vote] = nil
             end
 
             redirect_to request_url(@info_request)
