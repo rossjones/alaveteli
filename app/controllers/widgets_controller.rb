@@ -17,14 +17,18 @@ class WidgetsController < ApplicationController
         @count = @info_request.track_things.count + @info_request.widget_votes.count + 1
         @user_owns_request = @info_request.user && @info_request.user == @user
 
-        if @user
-            @existing_track = TrackThing.find_existing(@user, @track_thing)
-        else
-            @existing_vote = @info_request.
-                               widget_votes.
-                                 where(:cookie => cookies[:widget_vote]).
-                                   any?
-        end
+        @existing_track =
+            if @user
+                TrackThing.find_existing(@user, @track_thing)
+            end
+
+        @existing_vote =
+            unless @existing_track
+                @info_request.
+                    widget_votes.
+                        where(:cookie => cookies[:widget_vote]).
+                            any?
+            end
 
         render :action => 'show', :layout => false
     end
