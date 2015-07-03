@@ -73,6 +73,12 @@ describe WidgetsController do
 
         context 'for a non-logged-in user with a tracking cookie' do
 
+            it 'will not find existing tracks' do
+                request.cookies['widget_vote'] = mock_cookie
+                get :show, :request_id => @info_request.id
+                expect(assigns[:existing_track]).to be_nil
+            end
+
             it 'finds existing votes' do
                 vote = FactoryGirl.create(:widget_vote,
                                           :info_request => @info_request,
@@ -92,6 +98,12 @@ describe WidgetsController do
         end
 
         context 'for a non-logged-in user without a tracking cookie' do
+
+            it 'will not find existing tracks' do
+                request.cookies['widget_vote'] = nil
+                get :show, :request_id => @info_request.id
+                expect(assigns[:existing_track]).to be_nil
+            end
 
             it 'will not find any existing votes' do
                 request.cookies['widget_vote'] = nil
